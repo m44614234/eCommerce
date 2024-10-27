@@ -91,8 +91,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       httpOnly: true,
       maxAge: 72 * 60 * 60 * 1000,
     });
-
-    res.status(200).json({
+    res.json({
       _id: findUser?._id,
       firstname: findUser?.firstname,
       lastname: findUser?.lastname,
@@ -125,7 +124,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
       httpOnly: true,
       maxAge: 72 * 60 * 60 * 1000,
     });
-    res.status(200).json({
+    res.json({
       _id: findAdmin?._id,
       firstname: findAdmin?.firstname,
       lastname: findAdmin?.lastname,
