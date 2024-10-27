@@ -65,7 +65,7 @@ const createUser = asyncHandler(async (req, res) => {
     lastname: createdUser?.lastname,
     email: createdUser?.email,
     mobile: createdUser?.mobile,
-    token: generateToken(createdUser?._id),
+    // token: generateToken(createdUser?._id),
   });
 
 
@@ -74,30 +74,57 @@ const createUser = asyncHandler(async (req, res) => {
  
 
 // Login a user
+// const loginUserCtrl = asyncHandler(async (req, res) => {
+//   const { email, password } = req.body;
+//   // check if user exists or not
+//   const findUser = await User.findOne({ email });
+//   if (findUser && (await findUser.isPasswordMatched(password))) {
+//     const refreshToken = await generateRefreshToken(findUser?._id);
+//     const updateuser = await User.findByIdAndUpdate(
+//       findUser.id,
+//       {
+//         refreshToken: refreshToken,
+//       },
+//       { new: true }
+//     );
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true,
+//       maxAge: 72 * 60 * 60 * 1000,
+//     });
+//     res.json({
+//       _id: findUser?._id,
+//       firstname: findUser?.firstname,
+//       lastname: findUser?.lastname,
+//       email: findUser?.email,
+//       mobile: findUser?.mobile,
+//       token: generateToken(findUser?._id),
+//     });
+//   } else {
+//     throw new Error("Invalid Credentials");
+//   }
+// });
+
 const loginUserCtrl = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  // check if user exists or not
+
+  // Check if user exists and password matches
   const findUser = await User.findOne({ email });
   if (findUser && (await findUser.isPasswordMatched(password))) {
-    const refreshToken = await generateRefreshToken(findUser?._id);
-    const updateuser = await User.findByIdAndUpdate(
-      findUser.id,
-      {
-        refreshToken: refreshToken,
-      },
-      { new: true }
-    );
-    res.cookie("refreshToken", refreshToken, {
+    const accessToken = generateToken(findUser._id);
+
+    // Set the access token in a cookie
+    res.cookie("jwt", accessToken, {
       httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
+      maxAge: 72 * 60 * 60 * 1000, // Expires in 72 hours (adjust as needed)
     });
+
     res.json({
-      _id: findUser?._id,
-      firstname: findUser?.firstname,
-      lastname: findUser?.lastname,
-      email: findUser?.email,
-      mobile: findUser?.mobile,
-      token: generateToken(findUser?._id),
+      _id: findUser._id,
+      firstname: findUser.firstname,
+      lastname: findUser.lastname,
+      email: findUser.email,
+      mobile: findUser.mobile,
+      token: accessToken, // Use the generated access token
     });
   } else {
     throw new Error("Invalid Credentials");
@@ -652,7 +679,6 @@ module.exports = {
   getsingleOrder,
   updateOrder,
   getYearlyTotalOrder,
-
   removeProductFromCart,
   updateProductQuantityFromCart,
 };

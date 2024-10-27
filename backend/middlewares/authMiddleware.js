@@ -23,35 +23,38 @@ const authMiddleware = asyncHandler(async (req, res, next) => {
   //   }
   // } else {
   //   throw new Error("THere is no token attached to header");
-  // }
+  // }   
+  
+  const token = req.cookies["jwt"];
+  console.log("token =>", token);
 
   try {
-		const token = req.cookies.jwt;
-		console.log("token =>", token);
 
-		if (!token) {
-			return res.status(401).json({ error: "Unauthorized - No Token Provided" });
-		}
+    if (!token) {
+      return res
+        .status(401)
+        .json({ error: "Unauthorized - No Token Provided" });
+    }
 
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-		if (!decoded) {
-			return res.status(401).json({ error: "Unauthorized - Invalid Token" });
-		}
+    if (!decoded) {
+      return res.status(401).json({ error: "Unauthorized - Invalid Token" });
+    }
 
-		const user = await User.findById(decoded.userId).select("-password");
+    const user = await User.findById(decoded.userId).select("-password");
 
-		if (!user) {
-			return res.status(404).json({ error: "User not found" });
-		}
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-		req.user = user;
+    req.user = user;
 
-		next();
-	} catch (error) {
-		console.log("Error in protectRoute middleware: ", error.message);
-		res.status(500).json({ error: "Internal server error" });
-	}
+    next();
+  } catch (error) {
+    console.log("Error in protectRoute middleware: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 const isAdmin = asyncHandler(async (req, res, next) => {
@@ -66,4 +69,3 @@ const isAdmin = asyncHandler(async (req, res, next) => {
 });
 
 module.exports = { authMiddleware, isAdmin };
-
