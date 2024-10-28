@@ -177,6 +177,7 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
       throw new Error("There is something wrong with refresh token");
     }
     const accessToken = generateToken(user?._id);
+    console.log("accessToken =>", accessToken);
     res.json({ accessToken });
   });
 });
